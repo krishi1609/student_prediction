@@ -1,0 +1,11 @@
+study_hours,attendance,sleep_hours,internet_usage,assignments_completed,previous_score,exam_score,placement_status
+5,85,7,3,8,75,78,Placed
+6,90,6,2,9,82,88,Placed
+4,75,8,5,6,65,70,Not Placed
+7,92,6,2,10,89,91,Placed
+3,68,7,6,5,58,60,Not Placed
+8,95,5,1,10,94,96,Placed
+2,60,8,7,4,50,55,Not Placed
+6,82,7,3,8,80,84,Placed
+5,78,6,4,7,70,72,Placed
+4,70,8,5,6,62,65,Not Placed
