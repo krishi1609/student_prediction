@@ -9,11 +9,11 @@ library(RMySQL)
 getConnection <- function() {
   dbConnect(
     RMySQL::MySQL(),
-    host     = "127.0.0.1",
-    port     = 3306,
-    dbname   = "student_db",
-    user     = "root",
-    password = "krishi1121" 
+    host     = or_default(Sys.getenv("STUDENT_DB_HOST"), "127.0.0.1"),
+    port     = as.integer(or_default(Sys.getenv("STUDENT_DB_PORT"), "3306")),
+    dbname   = or_default(Sys.getenv("STUDENT_DB_NAME"), "student_db"),
+    user     = or_default(Sys.getenv("STUDENT_DB_USER"), "root"),
+    password = or_default(Sys.getenv("STUDENT_DB_PASSWORD"), "krishi1121")
   )
 }
 
@@ -763,41 +763,6 @@ server <- function(input, output, session) {
     validate(need(is.numeric(df[[xvar]]) && is.numeric(df[[yvar]]), "Both selected columns must be numeric."))
 
     make_relationship_plot(df, xvar, yvar, chart_type)
-  })
-
-  # ── ATTENDANCE VS SCORE (custom relationship chart) ─────────────────────────
-  output$relationshipPlot <- renderPlot({
-    df <- filtered_data()
-    validate(need(nrow(df) > 0, "No data to display"))
-
-    xvar <- input$customXVar
-    if (is.null(xvar) || xvar == "") xvar <- "attendance"
-    yvar <- input$customYVar
-    if (is.null(yvar) || yvar == "") yvar <- "exam_score"
-    chart_type <- input$relationshipChartType
-    if (is.null(chart_type) || chart_type == "") chart_type <- "Scatter Plot"
-
-    validate(need(xvar != yvar, "Please choose two different columns."))
-    validate(need(xvar %in% names(df) && yvar %in% names(df), "Selected columns are not available."))
-    validate(need(is.numeric(df[[xvar]]) && is.numeric(df[[yvar]]), "Both selected columns must be numeric."))
-
-    plot_df <- df[, c(xvar, yvar)]
-    plot_df <- plot_df[complete.cases(plot_df), , drop = FALSE]
-    validate(need(nrow(plot_df) > 0, "No complete rows available for the selected columns."))
-
-    gg <- ggplot(plot_df, aes(x = .data[[xvar]], y = .data[[yvar]]))
-    if (chart_type == "Trend Line") {
-      gg +
-        geom_point(color = "#4ecca3", size = 3, alpha = 0.75) +
-        geom_smooth(method = "lm", se = FALSE, color = "#0f3460", linewidth = 1.1) +
-        labs(x = relationshipLabel(xvar), y = relationshipLabel(yvar)) +
-        make_bar_theme()
-    } else {
-      gg +
-        geom_point(color = "#4ecca3", size = 3, alpha = 0.8) +
-        labs(x = relationshipLabel(xvar), y = relationshipLabel(yvar)) +
-        make_bar_theme()
-    }
   })
 
   output$customDashboardPlot <- renderPlot({
