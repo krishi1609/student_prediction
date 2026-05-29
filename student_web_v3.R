@@ -5,6 +5,31 @@ library(DT)
 library(DBI)
 library(RMySQL)
 
+# Load local environment variables from .env if present.
+load_dot_env <- function(path = ".env") {
+  if (!file.exists(path)) return(invisible(FALSE))
+
+  lines <- readLines(path, warn = FALSE)
+  lines <- trimws(lines)
+  lines <- lines[nzchar(lines)]
+  lines <- lines[!grepl("^#", lines)]
+
+  for (line in lines) {
+    if (!grepl("=", line, fixed = TRUE)) next
+    parts <- strsplit(line, "=", fixed = TRUE)[[1]]
+    key <- trimws(parts[[1]])
+    value <- paste(parts[-1], collapse = "=")
+    value <- trimws(value)
+    value <- sub('^"(.*)"$', "\\1", value)
+    value <- sub("^'(.*)'$", "\\1", value)
+    if (nzchar(key)) Sys.setenv(setNames(value, key))
+  }
+
+  invisible(TRUE)
+}
+
+load_dot_env()
+
 # ── DB helpers ────────────────────────────────────────────────────────────────
 getConnection <- function() {
   dbConnect(
